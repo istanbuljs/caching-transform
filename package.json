@@ -1,7 +1,7 @@
 {
   "name": "caching-transform",
   "version": "0.0.0",
-  "description": "My bee&#39;s knees module",
+  "description": "Wraps a transform and provides caching",
   "license": "MIT",
   "repository": "jamestalmage/caching-transform",
   "author": {
