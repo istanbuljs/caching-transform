@@ -62,7 +62,7 @@ Type: `Function(input: string, additionalData: *, hash: string): string`
 
  - `input`: The string to be transformed. passed through from the wrapper.
  - `additionalData`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
- - `hash`: The salted hash of `input`. You will rarely need to use this, unless you intend to create multiple cache entries per transform invocation.
+ - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data).
 
 The transform function should return a `string` containing the result of transforming `input`.
 
@@ -70,7 +70,7 @@ The transform function should return a `string` containing the result of transfo
 
 Type: `Function(cacheDir: string): transformFunction`
 
-If the `transform` function is expensive to create, and it is reasonable to expect that it may never be called during the life of the process, you can may supply a `factory` function that will be used to create the `transform` function the first time it is needed.
+If the `transform` function is expensive to create, and it is reasonable to expect that it may never be called during the life of the process, you may supply a `factory` function that will be used to create the `transform` function the first time it is needed.
 
 ##### cacheDir
 
