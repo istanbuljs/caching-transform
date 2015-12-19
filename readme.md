@@ -34,10 +34,11 @@ cachingTransform({
 ### cachingTransform(options)
 
 Returns a transform callback that takes two arguments:
- - `input` is a string to be transformed
- - `additionalData` is an arbitrary data object.
 
-Both arguments are passed to the wrapped transform.
+ - `input` a string to be transformed
+ - `additionalData` an arbitrary data object.
+
+Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `md5` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
 
 #### options
                  
@@ -46,14 +47,14 @@ Both arguments are passed to the wrapped transform.
 Type: `string`
 Default: `empty string`
 
-A string that uniquely identifies your transform, a typical salt value might be the concatenation of the module name of your transform and it's version':
+A string that uniquely identifies your transform, a typical salt value might be the concatenation of the module name of your transform and its version':
 
 ```js
   const pkg = require('my-transform/package.json');
   const salt = pkg.name + ':' + pkg.version;
 ```
 
-Including the package version in the salt ensures existing cache entries will be automatically invalidated when you bump the version of your transform.
+Including the package version in the salt ensures existing cache entries will be automatically invalidated when you bump the version of your transform. If your transform relies on additional dependencies, and the transform output might change as those dependencies update, then your salt should incorporate the versions of those dependencies as well.
 
 ##### transform
 
@@ -63,26 +64,26 @@ Type: `Function(input: string, additionalData: *, hash: string): string`
  - `additionalData`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
  - `hash`: The salted hash of `input`. You will rarely need to use this, unless you intend to create multiple cache entries per transform invocation.
 
-Return a `string` containing the transformed results.
+The transform function should return a `string` containing the result of transforming `input`.
 
 ##### factory
 
 Type: `Function(cacheDir: string): transformFunction`
 
-If the `transform` function is expensive to create, at it is reasonable to expect that it may never be called during the life of the process, you can alternately supply a `factory` function that will be invoked the first time `transform` is needed.
+If the `transform` function is expensive to create, and it is reasonable to expect that it may never be called during the life of the process, you can may supply a `factory` function that will be used to create the `transform` function the first time it is needed.
 
 ##### cacheDir
 
 Type: `string`
 
-The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain  the directory already exists. 
+The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain the directory already exists. 
 
 ##### ext
 
 Type: `string`
 Default: `empty string`
 
-An extension that will be appended to the salted hash to create the filename inside your cache directory. It is not required, but it is recommended if you know the file type. Appending the extension allows you to easily inspect the cache directory contents with your file browser.
+An extension that will be appended to the salted hash to create the filename inside your cache directory. It is not required, but recommended if you know the file type. Appending the extension allows you to easily inspect the contents of the cache directory with your file browser.
 
 ## License
 
