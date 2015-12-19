@@ -9,4 +9,4 @@ before_install:
   - 'npm i -g npm@latest'
 
 after_script:
-  - 'cat ./coverage/lcov.ino | ./node_modules/.bin/coveralls'
+  - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
