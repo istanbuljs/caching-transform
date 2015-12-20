@@ -62,7 +62,7 @@ Type: `Function(input: string, additionalData: *, hash: string): string`
 
  - `input`: The string to be transformed. passed through from the wrapper.
  - `additionalData`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
- - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data).
+ - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, it can be computed via `cachingTransform.getHash(input, salt)`.
 
 The transform function should return a `string` containing the result of transforming `input`.
 
@@ -84,6 +84,20 @@ Type: `string`
 Default: `empty string`
 
 An extension that will be appended to the salted hash to create the filename inside your cache directory. It is not required, but recommended if you know the file type. Appending the extension allows you to easily inspect the contents of the cache directory with your file browser.
+
+##### shouldTransform
+
+Type: `Function(input: string, additonalData: *)`
+Default: `always transform`
+
+A function that examines `input` and `additionalData` to determine whether the transform should be applied. Returning `false` means the transform will not be applied and `input` will be returned unmodified.
+ 
+##### disableCache
+
+Type: `boolean`
+Default: `false`
+
+If `true`, the cache is ignored and the transform is used every time regardless of cache contents. 
 
 ## License
 

@@ -28,24 +28,37 @@ function wrap(opts) {
 	var created = transformFn && cacheDirCreated;
 	var ext = opts.ext || '';
 	var salt = opts.salt || '';
+	var shouldTransform = opts.shouldTransform;
+	var disableCache = opts.disableCache;
+
+	function transform(input, additionalData, hash) {
+		if (!created) {
+			if (!cacheDirCreated && !disableCache) {
+				mkdirp.sync(cacheDir);
+			}
+			if (!transformFn) {
+				transformFn = factory(cacheDir);
+			}
+			created = true;
+		}
+		return transformFn(input, additionalData, hash);
+	}
 
 	return function (input, additionalData) {
+		if (shouldTransform && !shouldTransform(input, additionalData)) {
+			return input;
+		}
+		if (disableCache) {
+			return transform(input, additionalData);
+		}
+
 		var hash = getHash(input, salt);
 		var cachedPath = path.join(cacheDir, hash + ext);
 
 		try {
 			return fs.readFileSync(cachedPath, 'utf8');
 		} catch (e) {
-			if (!created) {
-				if (!cacheDirCreated) {
-					mkdirp.sync(cacheDir);
-				}
-				if (!transformFn) {
-					transformFn = factory(cacheDir);
-				}
-				created = true;
-			}
-			var result = transformFn(input, additionalData, hash);
+			var result = transform(input, additionalData, hash);
 			fs.writeFileSync(cachedPath, result);
 			return result;
 		}

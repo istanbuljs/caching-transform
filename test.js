@@ -210,3 +210,60 @@ test('checks for sensible options', t => {
 		wrap({transform, cacheDir});
 	});
 });
+
+test('shouldTransform can bypass transform', t => {
+	const transform = wrap({
+		shouldTransform: (code, file) => {
+			t.is(code, 'baz');
+			t.is(file, '/baz.js');
+			return false;
+		},
+		transform: () => t.fail(),
+		cacheDir: '/someDir'
+	});
+
+	t.is(transform('baz', '/baz.js'), 'baz');
+});
+
+test('shouldTransform can enable transform', t => {
+	const transform = wrap({
+		shouldTransform: (code, file) => {
+			t.is(code, 'foo');
+			t.is(file, '/foo.js');
+			return true;
+		},
+		transform: append('bar'),
+		cacheDir: '/someDir'
+	});
+
+	t.is(transform('foo', '/foo.js'), 'foo bar');
+});
+
+test('disableCache:true, disables cache - transform is called multiple times', t => {
+	const transformSpy = sinon.spy(append('bar'));
+	const transform = wrap({
+		disableCache: true,
+		transform: transformSpy,
+		cacheDir: '/someDir'
+	});
+
+	t.is(transformSpy.callCount, 0);
+	t.is(transform('foo'), 'foo bar');
+	t.is(transformSpy.callCount, 1);
+	t.is(transform('foo'), 'foo bar');
+	t.is(transformSpy.callCount, 2);
+});
+
+test('disableCache:default, enables cache - transform is called once per hashed input', t => {
+	const transformSpy = sinon.spy(append('bar'));
+	const transform = wrap({
+		transform: transformSpy,
+		cacheDir: '/someDir'
+	});
+
+	t.is(transformSpy.callCount, 0);
+	t.is(transform('foo'), 'foo bar');
+	t.is(transformSpy.callCount, 1);
+	t.is(transform('foo'), 'foo bar');
+	t.is(transformSpy.callCount, 1);
+});
