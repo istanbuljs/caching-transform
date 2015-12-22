@@ -13,6 +13,10 @@ function getHash(input, salt) {
 		.digest('hex');
 }
 
+function defaultHash(input, additionalData, salt) {
+	return getHash(input, salt);
+}
+
 function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
 		throw new Error('specify factory or transform but not both');
@@ -30,6 +34,7 @@ function wrap(opts) {
 	var salt = opts.salt || '';
 	var shouldTransform = opts.shouldTransform;
 	var disableCache = opts.disableCache;
+	var hashFn = opts.hash || defaultHash;
 
 	function transform(input, additionalData, hash) {
 		if (!created) {
@@ -52,7 +57,7 @@ function wrap(opts) {
 			return transform(input, additionalData);
 		}
 
-		var hash = getHash(input, salt);
+		var hash = hashFn(input, additionalData, salt);
 		var cachedPath = path.join(cacheDir, hash + ext);
 
 		try {

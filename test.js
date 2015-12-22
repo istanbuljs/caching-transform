@@ -267,3 +267,24 @@ test('disableCache:default, enables cache - transform is called once per hashed 
 	t.is(transform('foo'), 'foo bar');
 	t.is(transformSpy.callCount, 1);
 });
+
+test('can provide custom hash function', t => {
+	t.plan(5);
+
+	const hash = sinon.spy(function (code, filename, salt) {
+		t.is(code, 'foo');
+		t.is(filename, '/foo.js');
+		t.is(salt, 'this is salt');
+		return 'foo-hash';
+	});
+
+	const transform = wrap({
+		salt: 'this is salt',
+		cacheDir: '/cacheDir',
+		transform: append('bar'),
+		hash
+	});
+
+	t.is(transform('foo', '/foo.js'), 'foo bar');
+	t.is(transform.fs.readFileSync('/cacheDir/foo-hash', 'utf8'), 'foo bar');
+});
