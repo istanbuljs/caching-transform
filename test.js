@@ -7,6 +7,7 @@ import sinon from 'sinon';
 
 function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
+	fs['@global'] = true;
 	const mkdirp = sinon.spy(proxyquire('mkdirp', {fs}));
 	mkdirp.sync = sinon.spy(mkdirp.sync);
 	var cachingTransform = proxyquire('./', {fs, mkdirp});

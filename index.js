@@ -4,6 +4,7 @@ var mkdirp = require('mkdirp');
 var crypto = require('crypto');
 var fs = require('fs');
 var path = require('path');
+var writeFileAtomic = require('write-file-atomic');
 
 function getHash(input, salt) {
 	return crypto
@@ -64,7 +65,7 @@ function wrap(opts) {
 			return fs.readFileSync(cachedPath, 'utf8');
 		} catch (e) {
 			var result = transform(input, additionalData, hash);
-			fs.writeFileSync(cachedPath, result);
+			writeFileAtomic.sync(cachedPath, result);
 			return result;
 		}
 	};
