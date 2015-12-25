@@ -20,7 +20,7 @@ const cachingTransform = require('caching-transform');
 cachingTransform({
   cacheDir: '/path/to/cache/directory',
   salt: 'hash-salt',
-  transform: (input, additionalData, hash) => {
+  transform: (input, metadata, hash) => {
     // ...
     return transformedResult;
   }
@@ -35,7 +35,7 @@ cachingTransform({
 Returns a transform callback that takes two arguments:
 
  - `input` a string to be transformed
- - `additionalData` an arbitrary data object.
+ - `metadata` an arbitrary data object.
 
 Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `md5` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
 
@@ -57,10 +57,10 @@ Including the package version in the salt ensures existing cache entries will be
 
 ##### transform
 
-Type: `Function(input: string|buffer, additionalData: *, hash: string): string|buffer`  
+Type: `Function(input: string|buffer, metadata: *, hash: string): string|buffer`  
 
  - `input`: The value to be transformed. It is passed through from the wrapper.
- - `additionalData`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
+ - `metadata`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
  - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, the default can be computed via [`md5Hex([input, salt])`](https://www.npmjs.com/package/md5-hex).
 
 The transform function will return a `string` (or Buffer if `encoding === 'buffer'`) containing the result of transforming `input`.
@@ -89,7 +89,7 @@ An extension that will be appended to the salted hash to create the filename ins
 Type: `Function(input: string|buffer, additonalData: *)`
 Default: `always transform`
 
-A function that examines `input` and `additionalData` to determine whether the transform should be applied. Returning `false` means the transform will not be applied and `input` will be returned unmodified.
+A function that examines `input` and `metadata` to determine whether the transform should be applied. Returning `false` means the transform will not be applied and `input` will be returned unmodified.
  
 ##### disableCache
 
@@ -100,9 +100,9 @@ If `true`, the cache is ignored and the transform is used every time regardless 
  
 ##### hash
 
-Type: `Function(input: string|buffer, additionalData: *, salt: string): string`
+Type: `Function(input: string|buffer, metadata: *, salt: string): string`
 
-Provide a custom hashing function for the given input. The default hashing function does not take the `additionalData` into account:
+Provide a custom hashing function for the given input. The default hashing function does not take the `metadata` into account:
 
 > [`md5Hex([input, salt])`](https://www.npmjs.com/package/md5-hex)
 

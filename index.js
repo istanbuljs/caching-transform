@@ -30,7 +30,7 @@ function wrap(opts) {
 	var hashFn = opts.hash || defaultHash;
 	var encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
-	function transform(input, additionalData, hash) {
+	function transform(input, metadata, hash) {
 		if (!created) {
 			if (!cacheDirCreated && !disableCache) {
 				mkdirp.sync(cacheDir);
@@ -40,24 +40,24 @@ function wrap(opts) {
 			}
 			created = true;
 		}
-		return transformFn(input, additionalData, hash);
+		return transformFn(input, metadata, hash);
 	}
 
-	return function (input, additionalData) {
-		if (shouldTransform && !shouldTransform(input, additionalData)) {
+	return function (input, metadata) {
+		if (shouldTransform && !shouldTransform(input, metadata)) {
 			return input;
 		}
 		if (disableCache) {
-			return transform(input, additionalData);
+			return transform(input, metadata);
 		}
 
-		var hash = hashFn(input, additionalData, salt);
+		var hash = hashFn(input, metadata, salt);
 		var cachedPath = path.join(cacheDir, hash + ext);
 
 		try {
 			return fs.readFileSync(cachedPath, encoding);
 		} catch (e) {
-			var result = transform(input, additionalData, hash);
+			var result = transform(input, metadata, hash);
 			writeFileAtomic.sync(cachedPath, result, encoding);
 			return result;
 		}
