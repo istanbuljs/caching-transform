@@ -1,7 +1,7 @@
 import test from 'ava';
 import proxyquire from 'proxyquire';
 import mockfs from 'mock-fs';
-import {getHash} from './';
+import md5Hex from 'md5-hex';
 import path from 'path';
 import sinon from 'sinon';
 
@@ -160,10 +160,7 @@ test('additional opts are passed to transform', t => {
 	t.is(transform('foo', {bar: 'baz'}), 'FOO!');
 });
 
-test('salt changes the hash', t => {
-	t.is(getHash('foo', 'bar'), getHash('foo', 'bar'));
-	t.not(getHash('foo', 'bar'), getHash('foo', 'baz'));
-
+test('filename is generated from the md5 hash of the input content and the salt', t => {
 	const transform = wrap (
 		{
 			transform: append('bar'),
@@ -174,7 +171,7 @@ test('salt changes the hash', t => {
 
 	transform('FOO');
 
-	var filename = path.join('/someDir', getHash('FOO', 'baz'));
+	const filename = path.join('/someDir', md5Hex(['FOO', 'baz']));
 
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'FOO bar');
 });

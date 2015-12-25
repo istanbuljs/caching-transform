@@ -1,21 +1,13 @@
 'use strict';
 
 var mkdirp = require('mkdirp');
-var crypto = require('crypto');
+var md5Hex = require('md5-hex');
 var fs = require('fs');
 var path = require('path');
 var writeFileAtomic = require('write-file-atomic');
 
-function getHash(input, salt) {
-	return crypto
-		.createHash('md5')
-		.update(input, 'utf8')
-		.update(salt || '', 'utf8')
-		.digest('hex');
-}
-
 function defaultHash(input, additionalData, salt) {
-	return getHash(input, salt);
+	return md5Hex([input, salt || '']);
 }
 
 function wrap(opts) {
@@ -72,4 +64,3 @@ function wrap(opts) {
 }
 
 module.exports = wrap;
-module.exports.getHash = getHash;

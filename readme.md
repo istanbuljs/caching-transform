@@ -62,7 +62,7 @@ Type: `Function(input: string, additionalData: *, hash: string): string`
 
  - `input`: The string to be transformed. passed through from the wrapper.
  - `additionalData`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
- - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, it can be computed via `cachingTransform.getHash(input, salt)`.
+ - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, it can be computed via [`md5Hex([input, salt])`](https://www.npmjs.com/package/md5-hex).
 
 The transform function should return a `string` containing the result of transforming `input`.
 
