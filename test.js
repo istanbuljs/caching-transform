@@ -286,3 +286,40 @@ test('can provide custom hash function', t => {
 	t.is(transform('foo', '/foo.js'), 'foo bar');
 	t.is(transform.fs.readFileSync('/cacheDir/foo-hash', 'utf8'), 'foo bar');
 });
+
+test('custom encoding changes value loaded from disk', t => {
+	const transform = wrap({
+		transform: () => t.fail(),
+		encoding: 'hex',
+		cacheDir: '/cacheDir'
+	}, {
+		['/cacheDir/' + md5Hex('foo')]: 'foo bar'
+	});
+
+	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
+});
+
+test('custom encoding changes the value stored to disk', t => {
+	const transform = wrap({
+		transform: code => new Buffer(code + ' bar').toString('hex'),
+		encoding: 'hex',
+		cacheDir: '/cacheDir'
+	});
+
+	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
+	t.is(transform.fs.readFileSync('/cacheDir/' + md5Hex('foo'), 'utf8'), 'foo bar');
+});
+
+test('buffer encoding returns a buffer', t => {
+	const transform = wrap({
+		transform: () => t.fail(),
+		encoding: 'buffer',
+		cacheDir: '/cacheDir'
+	}, {
+		['/cacheDir/' + md5Hex('foo')]: 'foo bar'
+	});
+
+	var result = transform('foo');
+	t.true(Buffer.isBuffer(result));
+	t.is(result.toString(), 'foo bar');
+});

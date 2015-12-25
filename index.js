@@ -28,6 +28,7 @@ function wrap(opts) {
 	var shouldTransform = opts.shouldTransform;
 	var disableCache = opts.disableCache;
 	var hashFn = opts.hash || defaultHash;
+	var encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, additionalData, hash) {
 		if (!created) {
@@ -54,10 +55,10 @@ function wrap(opts) {
 		var cachedPath = path.join(cacheDir, hash + ext);
 
 		try {
-			return fs.readFileSync(cachedPath, 'utf8');
+			return fs.readFileSync(cachedPath, encoding);
 		} catch (e) {
 			var result = transform(input, additionalData, hash);
-			writeFileAtomic.sync(cachedPath, result);
+			writeFileAtomic.sync(cachedPath, result, encoding);
 			return result;
 		}
 	};
