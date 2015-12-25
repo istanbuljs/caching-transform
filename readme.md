@@ -17,14 +17,18 @@ $ npm install --save caching-transform
 ```js
 const cachingTransform = require('caching-transform');
 
-cachingTransform({
+const transform = cachingTransform({
   cacheDir: '/path/to/cache/directory',
   salt: 'hash-salt',
   transform: (input, metadata, hash) => {
-    // ...
+    // ... expensive operations ...
     return transformedResult;
   }
 });
+
+transform('some input for transpilation')
+// => fetch from the cache,
+//    or run the transform and save to the cache if not found there
 ```
 
 
@@ -70,6 +74,19 @@ The transform function will return a `string` (or Buffer if `encoding === 'buffe
 Type: `Function(cacheDir: string): transformFunction`
 
 If the `transform` function is expensive to create, and it is reasonable to expect that it may never be called during the life of the process, you may supply a `factory` function that will be used to create the `transform` function the first time it is needed.
+
+A typical usage would be to prevent eagerly `require`ing expensive dependencies like Babel:
+
+```js
+function factory() {
+  // Using the factory function, you can avoid loading Babel until you are sure it is needed. 
+  var babel = require('babel-core');
+  
+  return function (code, metadata) {
+    return babel.transform(code, {filename: metadata.filename, plugins: [/* ... */]});
+  };
+}
+```
 
 ##### cacheDir
 
