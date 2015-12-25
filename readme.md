@@ -47,17 +47,17 @@ Both arguments are passed to the wrapped transform. Results are cached in the ca
                  
 ##### salt
 
-Type: `string`
+Type: `string`, or `buffer`
 Default: `empty string`
 
-A string that uniquely identifies your transform, a typical salt value might be the concatenation of the module name of your transform and its version':
+A value that uniquely identifies your transform:
 
 ```js
   const pkg = require('my-transform/package.json');
   const salt = pkg.name + ':' + pkg.version;
 ```
 
-Including the package version in the salt ensures existing cache entries will be automatically invalidated when you bump the version of your transform. If your transform relies on additional dependencies, and the transform output might change as those dependencies update, then your salt should incorporate the versions of those dependencies as well.
+Including the version in the salt ensures existing cache entries will be automatically invalidated when you bump the version of your transform. If your transform relies on additional dependencies, and the transform output might change as those dependencies update, then your salt should incorporate the versions of those dependencies as well.
 
 ##### transform
 

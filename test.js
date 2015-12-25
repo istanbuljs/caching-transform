@@ -323,3 +323,15 @@ test('buffer encoding returns a buffer', t => {
 	t.true(Buffer.isBuffer(result));
 	t.is(result.toString(), 'foo bar');
 });
+
+test('salt can be a buffer', t => {
+	const transform = wrap({
+		transform: () => t.fail(),
+		salt: new Buffer('some-salt'),
+		cacheDir: '/cacheDir'
+	}, {
+		['/cacheDir/' + md5Hex(['foo', new Buffer('some-salt', 'utf8')])]: 'foo bar'
+	});
+
+	t.is(transform('foo'), 'foo bar');
+});
