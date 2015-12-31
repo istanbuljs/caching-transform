@@ -14,7 +14,7 @@ function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
 		throw new Error('specify factory or transform but not both');
 	}
-	if (typeof opts.cacheDir !== 'string') {
+	if (typeof opts.cacheDir !== 'string' && !opts.disableCache) {
 		throw new Error('cacheDir must be a string');
 	}
 

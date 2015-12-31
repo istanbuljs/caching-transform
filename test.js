@@ -209,6 +209,15 @@ test('checks for sensible options', t => {
 	});
 });
 
+test('cacheDir is only required if caching is enabled', t => {
+	t.doesNotThrow(() => {
+		wrap({transform: append('bar'), disableCache: true});
+	});
+	t.throws(() => {
+		wrap({transform: append('bar')});
+	});
+});
+
 test('shouldTransform can bypass transform', t => {
 	const transform = wrap({
 		shouldTransform: (code, file) => {

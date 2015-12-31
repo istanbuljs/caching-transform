@@ -90,7 +90,8 @@ function factory() {
 
 ##### cacheDir
 
-Type: `string`
+Type: `string`  
+*Required unless caching is disabled*
 
 The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain the directory already exists. 
 
