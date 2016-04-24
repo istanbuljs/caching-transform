@@ -33,7 +33,7 @@
     "write-file-atomic": "^1.1.4"
   },
   "devDependencies": {
-    "ava": "^0.8.0",
+    "ava": "^0.14.0",
     "coveralls": "^2.11.6",
     "mock-fs": "^3.5.0",
     "nyc": "5.0.1",

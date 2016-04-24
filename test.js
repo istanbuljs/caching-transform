@@ -153,7 +153,7 @@ test('mkdirp is never called if `createCacheDir === false`, with factory', t => 
 test('additional opts are passed to transform', t => {
 	const transform = wrap((input, additionalOpts) => {
 		t.is(input, 'foo');
-		t.same(additionalOpts, {bar: 'baz'});
+		t.deepEqual(additionalOpts, {bar: 'baz'});
 		return 'FOO!'
 	});
 
@@ -189,7 +189,7 @@ test('factory is only called once', t => {
 	t.is(factory.callCount, 0);
 	t.is(transform('bar'), 'bar foo');
 	t.is(factory.callCount, 1);
-	t.same(factory.firstCall.args, ['/cacheDir']);
+	t.deepEqual(factory.firstCall.args, ['/cacheDir']);
 	t.is(transform('baz'), 'baz foo');
 	t.is(factory.callCount, 1);
 });
@@ -203,14 +203,14 @@ test('checks for sensible options', t => {
 	t.throws(() => wrap({factory}));
 	t.throws(() => wrap({transform}));
 
-	t.doesNotThrow(() => {
+	t.notThrows(() => {
 		wrap({factory, cacheDir});
 		wrap({transform, cacheDir});
 	});
 });
 
 test('cacheDir is only required if caching is enabled', t => {
-	t.doesNotThrow(() => {
+	t.notThrows(() => {
 		wrap({transform: append('bar'), disableCache: true});
 	});
 	t.throws(() => {
