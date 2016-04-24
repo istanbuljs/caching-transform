@@ -6,10 +6,6 @@ var mkdirp = require('mkdirp');
 var md5Hex = require('md5-hex');
 var writeFileAtomic = require('write-file-atomic');
 
-function defaultHash(input, additionalData, salt) {
-	return md5Hex([input, salt || '']);
-}
-
 function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
 		throw new Error('specify factory or transform but not both');
@@ -27,7 +23,8 @@ function wrap(opts) {
 	var salt = opts.salt || '';
 	var shouldTransform = opts.shouldTransform;
 	var disableCache = opts.disableCache;
-	var hashFn = opts.hash || defaultHash;
+	var hashData = opts.hashData;
+	var onHash = opts.onHash;
 	var encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
@@ -51,8 +48,20 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		var hash = hashFn(input, metadata, salt);
+		var data = [input];
+		if (salt) {
+			data.push(salt);
+		}
+		if (hashData) {
+			data = data.concat(hashData(input, metadata));
+		}
+
+		var hash = md5Hex(data);
 		var cachedPath = path.join(cacheDir, hash + ext);
+
+		if (onHash) {
+			onHash(input, metadata, hash);
+		}
 
 		try {
 			return fs.readFileSync(cachedPath, encoding);

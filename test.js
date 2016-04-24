@@ -279,25 +279,67 @@ test('disableCache:default, enables cache - transform is called once per hashed 
 	t.is(transformSpy.callCount, 1);
 });
 
-test('can provide custom hash function', t => {
-	t.plan(5);
+test('can provide additional input to the hash function', t => {
+	t.plan(4);
 
-	const hash = sinon.spy(function (code, filename, salt) {
+	const hashData = sinon.spy(function (code, filename) {
 		t.is(code, 'foo');
 		t.is(filename, '/foo.js');
-		t.is(salt, 'this is salt');
-		return 'foo-hash';
+		return 'extra-foo-data';
 	});
 
 	const transform = wrap({
 		salt: 'this is salt',
 		cacheDir: '/cacheDir',
 		transform: append('bar'),
-		hash
+		hashData
 	});
 
+	const filename = path.join('/cacheDir', md5Hex(['foo', 'this is salt', 'extra-foo-data']));
+
 	t.is(transform('foo', '/foo.js'), 'foo bar');
-	t.is(transform.fs.readFileSync('/cacheDir/foo-hash', 'utf8'), 'foo bar');
+	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
+});
+
+test('can provide an array of additional input to the hash function', t => {
+	t.plan(4);
+
+	const hashData = sinon.spy(function (code, filename) {
+		t.is(code, 'foo');
+		t.is(filename, '/foo.js');
+		return ['extra-foo-data', 'even-more-data'];
+	});
+
+	const transform = wrap({
+		salt: 'this is salt',
+		cacheDir: '/cacheDir',
+		transform: append('bar'),
+		hashData
+	});
+
+	const filename = path.join('/cacheDir', md5Hex(['foo', 'this is salt', 'extra-foo-data', 'even-more-data']));
+
+	t.is(transform('foo', '/foo.js'), 'foo bar');
+	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
+});
+
+test('onHash callback fires after hashing', t => {
+	t.plan(3);
+
+	const onHash = function (code, filename, hash) {
+		t.is(code, 'foo');
+		t.is(filename, '/foo.js');
+		t.is(hash, md5Hex([code, 'this is salt']));
+	};
+
+	const transform = wrap({
+		salt: 'this is salt',
+		cacheDir: '/cacheDir',
+		transform: append('bar'),
+		onHash
+	});
+
+	transform('foo', '/foo.js');
 });
 
 test('custom encoding changes value loaded from disk', t => {

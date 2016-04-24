@@ -116,13 +116,27 @@ Default: `false`
 
 If `true`, the cache is ignored and the transform is used every time regardless of cache contents.
 
-##### hash
+##### hashData
 
-Type: `Function(input: string|buffer, metadata: *, salt: string): string`
+Type: `Function(input: string|buffer, metadata: *): string|buffer|array[string|buffer]`
 
-Provide a custom hashing function for the given input. The default hashing function does not take the `metadata` into account:
+Provide additional data that should be included in the hash.
 
-> [`md5Hex([input, salt])`](https://www.npmjs.com/package/md5-hex)
+One potential use is including the `metadata` in the hash by coercing it to a hashable string or buffer:
+
+```js
+function hashData(input, metadata) {
+  return JSON.stringify(metadata);
+}
+```
+
+(Note that `metadata` is not taken into account otherwise.)
+
+##### onHash
+
+Type: `Function(input: string|buffer, metadata: *, hash: string)`
+
+A function that is called after input is hashed.
 
 ##### encoding
 
