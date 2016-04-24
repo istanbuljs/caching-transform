@@ -2,7 +2,7 @@
 
 > Wraps a transform and provides caching.
 
-Caching transform results can greatly improve performance. `nyc` saw [dramatic performance increases](https://github.com/bcoe/nyc/pull/101#issuecomment-165716069) when we implemented caching. 
+Caching transform results can greatly improve performance. `nyc` saw [dramatic performance increases](https://github.com/bcoe/nyc/pull/101#issuecomment-165716069) when we implemented caching.
 
 
 ## Install
@@ -44,7 +44,7 @@ Returns a transform callback that takes two arguments:
 Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `md5` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
 
 #### options
-                 
+
 ##### salt
 
 Type: `string`, or `buffer`
@@ -79,9 +79,9 @@ A typical usage would be to prevent eagerly `require`ing expensive dependencies 
 
 ```js
 function factory() {
-  // Using the factory function, you can avoid loading Babel until you are sure it is needed. 
+  // Using the factory function, you can avoid loading Babel until you are sure it is needed.
   var babel = require('babel-core');
-  
+
   return function (code, metadata) {
     return babel.transform(code, {filename: metadata.filename, plugins: [/* ... */]});
   };
@@ -93,7 +93,7 @@ function factory() {
 Type: `string`  
 *Required unless caching is disabled*
 
-The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain the directory already exists. 
+The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain the directory already exists.
 
 ##### ext
 
@@ -104,18 +104,18 @@ An extension that will be appended to the salted hash to create the filename ins
 
 ##### shouldTransform
 
-Type: `Function(input: string|buffer, additonalData: *)`
+Type: `Function(input: string|buffer, additionalData: *)`
 Default: `always transform`
 
 A function that examines `input` and `metadata` to determine whether the transform should be applied. Returning `false` means the transform will not be applied and `input` will be returned unmodified.
- 
+
 ##### disableCache
 
 Type: `boolean`
 Default: `false`
 
 If `true`, the cache is ignored and the transform is used every time regardless of cache contents.
- 
+
 ##### hash
 
 Type: `Function(input: string|buffer, metadata: *, salt: string): string`
