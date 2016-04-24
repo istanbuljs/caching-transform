@@ -14,7 +14,7 @@ const PKG_HASH = '101044df7719e0cfa10cbf1ad7b1c63e';
 function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
 	fs['@global'] = true;
-	const mkdirp = sinon.spy(proxyquire('mkdirp', {fs}));
+	const mkdirp = proxyquire('mkdirp', {fs});
 	mkdirp.sync = sinon.spy(mkdirp.sync);
 	const packageHash = {
 		sync() {
@@ -289,11 +289,11 @@ test('disableCache:default, enables cache - transform is called once per hashed 
 test('can provide additional input to the hash function', t => {
 	t.plan(4);
 
-	const hashData = sinon.spy(function (code, filename) {
+	const hashData = function (code, filename) {
 		t.is(code, 'foo');
 		t.is(filename, '/foo.js');
 		return 'extra-foo-data';
-	});
+	};
 
 	const transform = wrap({
 		salt: 'this is salt',
@@ -311,11 +311,11 @@ test('can provide additional input to the hash function', t => {
 test('can provide an array of additional input to the hash function', t => {
 	t.plan(4);
 
-	const hashData = sinon.spy(function (code, filename) {
+	const hashData = function (code, filename) {
 		t.is(code, 'foo');
 		t.is(filename, '/foo.js');
 		return ['extra-foo-data', 'even-more-data'];
-	});
+	};
 
 	const transform = wrap({
 		salt: 'this is salt',
