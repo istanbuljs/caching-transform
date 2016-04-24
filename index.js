@@ -5,6 +5,13 @@ var path = require('path');
 var mkdirp = require('mkdirp');
 var md5Hex = require('md5-hex');
 var writeFileAtomic = require('write-file-atomic');
+var packageHash = require('package-hash');
+
+var ownHash = '';
+function getOwnHash() {
+	ownHash = packageHash.sync(__dirname);
+	return ownHash;
+}
 
 function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
@@ -48,7 +55,7 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		var data = [input];
+		var data = [ownHash || getOwnHash(), input];
 		if (salt) {
 			data.push(salt);
 		}

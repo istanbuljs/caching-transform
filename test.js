@@ -9,12 +9,19 @@ import sinon from 'sinon';
 // installed. Require the index.js here so it can be instrumented.
 import './';
 
+const PKG_HASH = '101044df7719e0cfa10cbf1ad7b1c63e';
+
 function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
 	fs['@global'] = true;
 	const mkdirp = sinon.spy(proxyquire('mkdirp', {fs}));
 	mkdirp.sync = sinon.spy(mkdirp.sync);
-	var cachingTransform = proxyquire('./', {fs, mkdirp});
+	const packageHash = {
+		sync() {
+			return PKG_HASH;
+		}
+	};
+	var cachingTransform = proxyquire('./', {fs, mkdirp, 'package-hash': packageHash});
 	cachingTransform.fs = fs;
 	cachingTransform.mkdirp = mkdirp;
 
@@ -45,8 +52,8 @@ test('saves transform result to cache directory', t => {
 	t.is(transform('foo'), 'foo bar');
 	t.is(transform('FOO'), 'FOO bar');
 
-	const filename1 = path.join('/cacheDir', 'acbd18db4cc2f85cedef654fccc4a4d8');
-	const filename2 = path.join('/cacheDir', '901890a8e9c8cf6d5a1a542b229febff');
+	const filename1 = path.join('/cacheDir', '87714fa8335fa22814b7e113e82ade06');
+	const filename2 = path.join('/cacheDir', 'b3ccaf374a0d63d6e8f67b5a0f3798dc');
 
 	t.is(transform.fs.readFileSync(filename1, 'utf8'), 'foo bar');
 	t.is(transform.fs.readFileSync(filename2, 'utf8'), 'FOO bar');
@@ -56,7 +63,7 @@ test('skips transform if cache file exists', t => {
 	const transform = wrap(
 		() => t.fail(),
 		{
-			'/cacheDir/acbd18db4cc2f85cedef654fccc4a4d8': 'foo bar'
+			'/cacheDir/87714fa8335fa22814b7e113e82ade06': 'foo bar'
 		}
 	);
 
@@ -71,7 +78,7 @@ test('able to specify alternate cacheDir', t => {
 
 	t.is(transform('foo'), 'foo bar');
 
-	const filename = path.join('/alternateDir', 'acbd18db4cc2f85cedef654fccc4a4d8');
+	const filename = path.join('/alternateDir', '87714fa8335fa22814b7e113e82ade06');
 
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
 });
@@ -85,7 +92,7 @@ test('able to specify alternate extension', t => {
 
 	t.is(transform('foo'), 'foo bar');
 
-	const filename = path.join('/cacheDir', 'acbd18db4cc2f85cedef654fccc4a4d8.js');
+	const filename = path.join('/cacheDir', '87714fa8335fa22814b7e113e82ade06.js');
 
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
 });
@@ -164,7 +171,7 @@ test('additional opts are passed to transform', t => {
 	t.is(transform('foo', {bar: 'baz'}), 'FOO!');
 });
 
-test('filename is generated from the md5 hash of the input content and the salt', t => {
+test('filename is generated from the md5 hash of the package hash, the input content and the salt', t => {
 	const transform = wrap(
 		{
 			transform: append('bar'),
@@ -175,7 +182,7 @@ test('filename is generated from the md5 hash of the input content and the salt'
 
 	transform('FOO');
 
-	const filename = path.join('/someDir', md5Hex(['FOO', 'baz']));
+	const filename = path.join('/someDir', md5Hex([PKG_HASH, 'FOO', 'baz']));
 
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'FOO bar');
 });
@@ -295,7 +302,7 @@ test('can provide additional input to the hash function', t => {
 		hashData
 	});
 
-	const filename = path.join('/cacheDir', md5Hex(['foo', 'this is salt', 'extra-foo-data']));
+	const filename = path.join('/cacheDir', md5Hex([PKG_HASH, 'foo', 'this is salt', 'extra-foo-data']));
 
 	t.is(transform('foo', '/foo.js'), 'foo bar');
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
@@ -317,7 +324,7 @@ test('can provide an array of additional input to the hash function', t => {
 		hashData
 	});
 
-	const filename = path.join('/cacheDir', md5Hex(['foo', 'this is salt', 'extra-foo-data', 'even-more-data']));
+	const filename = path.join('/cacheDir', md5Hex([PKG_HASH, 'foo', 'this is salt', 'extra-foo-data', 'even-more-data']));
 
 	t.is(transform('foo', '/foo.js'), 'foo bar');
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
@@ -329,7 +336,7 @@ test('onHash callback fires after hashing', t => {
 	const onHash = function (code, filename, hash) {
 		t.is(code, 'foo');
 		t.is(filename, '/foo.js');
-		t.is(hash, md5Hex([code, 'this is salt']));
+		t.is(hash, md5Hex([PKG_HASH, code, 'this is salt']));
 	};
 
 	const transform = wrap({
@@ -348,7 +355,7 @@ test('custom encoding changes value loaded from disk', t => {
 		encoding: 'hex',
 		cacheDir: '/cacheDir'
 	}, {
-		['/cacheDir/' + md5Hex('foo')]: 'foo bar'
+		['/cacheDir/' + md5Hex([PKG_HASH, 'foo'])]: 'foo bar'
 	});
 
 	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
@@ -362,7 +369,7 @@ test('custom encoding changes the value stored to disk', t => {
 	});
 
 	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
-	t.is(transform.fs.readFileSync('/cacheDir/' + md5Hex('foo'), 'utf8'), 'foo bar');
+	t.is(transform.fs.readFileSync('/cacheDir/' + md5Hex([PKG_HASH, 'foo']), 'utf8'), 'foo bar');
 });
 
 test('buffer encoding returns a buffer', t => {
@@ -371,7 +378,7 @@ test('buffer encoding returns a buffer', t => {
 		encoding: 'buffer',
 		cacheDir: '/cacheDir'
 	}, {
-		['/cacheDir/' + md5Hex('foo')]: 'foo bar'
+		['/cacheDir/' + md5Hex([PKG_HASH, 'foo'])]: 'foo bar'
 	});
 
 	var result = transform('foo');
@@ -385,7 +392,7 @@ test('salt can be a buffer', t => {
 		salt: new Buffer('some-salt'),
 		cacheDir: '/cacheDir'
 	}, {
-		['/cacheDir/' + md5Hex(['foo', new Buffer('some-salt', 'utf8')])]: 'foo bar'
+		['/cacheDir/' + md5Hex([PKG_HASH, 'foo', new Buffer('some-salt', 'utf8')])]: 'foo bar'
 	});
 
 	t.is(transform('foo'), 'foo bar');

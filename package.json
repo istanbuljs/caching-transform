@@ -30,6 +30,7 @@
   "dependencies": {
     "md5-hex": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "package-hash": "^1.2.0",
     "write-file-atomic": "^1.1.4"
   },
   "devDependencies": {
