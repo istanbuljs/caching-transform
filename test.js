@@ -5,6 +5,10 @@ import mockfs from 'mock-fs';
 import md5Hex from 'md5-hex';
 import sinon from 'sinon';
 
+// Istanbul (used by nyc to instrument the code) won't load when mock-fs is
+// installed. Require the index.js here so it can be instrumented.
+import './';
+
 function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
 	fs['@global'] = true;
