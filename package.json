@@ -40,10 +40,5 @@
     "proxyquire": "^1.7.3",
     "sinon": "^1.17.2",
     "xo": "^0.15.0"
-  },
-  "xo": {
-    "ignores": [
-      "test.js"
-    ]
   }
 }

@@ -1,8 +1,8 @@
+import path from 'path';
 import test from 'ava';
 import proxyquire from 'proxyquire';
 import mockfs from 'mock-fs';
 import md5Hex from 'md5-hex';
-import path from 'path';
 import sinon from 'sinon';
 
 function withMockedFs(fsConfig) {
@@ -154,14 +154,14 @@ test('additional opts are passed to transform', t => {
 	const transform = wrap((input, additionalOpts) => {
 		t.is(input, 'foo');
 		t.deepEqual(additionalOpts, {bar: 'baz'});
-		return 'FOO!'
+		return 'FOO!';
 	});
 
 	t.is(transform('foo', {bar: 'baz'}), 'FOO!');
 });
 
 test('filename is generated from the md5 hash of the input content and the salt', t => {
-	const transform = wrap (
+	const transform = wrap(
 		{
 			transform: append('bar'),
 			salt: 'baz',
@@ -198,7 +198,7 @@ test('checks for sensible options', t => {
 	const transform = append('bar');
 	const factory = () => transform;
 	const cacheDir = '/someDir';
-  t.throws(() => wrap({factory, transform, cacheDir}));
+	t.throws(() => wrap({factory, transform, cacheDir}));
 	t.throws(() => wrap({cacheDir}));
 	t.throws(() => wrap({factory}));
 	t.throws(() => wrap({transform}));
