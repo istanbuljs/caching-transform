@@ -1,9 +1,9 @@
 'use strict';
 
-var mkdirp = require('mkdirp');
-var md5Hex = require('md5-hex');
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp');
+var md5Hex = require('md5-hex');
 var writeFileAtomic = require('write-file-atomic');
 
 function defaultHash(input, additionalData, salt) {
