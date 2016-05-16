@@ -1,13 +1,16 @@
 'use strict';
 
-var mkdirp = require('mkdirp');
-var md5Hex = require('md5-hex');
 var fs = require('fs');
 var path = require('path');
+var mkdirp = require('mkdirp');
+var md5Hex = require('md5-hex');
 var writeFileAtomic = require('write-file-atomic');
+var packageHash = require('package-hash');
 
-function defaultHash(input, additionalData, salt) {
-	return md5Hex([input, salt || '']);
+var ownHash = '';
+function getOwnHash() {
+	ownHash = packageHash.sync(__dirname);
+	return ownHash;
 }
 
 function wrap(opts) {
@@ -27,7 +30,8 @@ function wrap(opts) {
 	var salt = opts.salt || '';
 	var shouldTransform = opts.shouldTransform;
 	var disableCache = opts.disableCache;
-	var hashFn = opts.hash || defaultHash;
+	var hashData = opts.hashData;
+	var onHash = opts.onHash;
 	var encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
@@ -51,8 +55,20 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		var hash = hashFn(input, metadata, salt);
+		var data = [ownHash || getOwnHash(), input];
+		if (salt) {
+			data.push(salt);
+		}
+		if (hashData) {
+			data = data.concat(hashData(input, metadata));
+		}
+
+		var hash = md5Hex(data);
 		var cachedPath = path.join(cacheDir, hash + ext);
+
+		if (onHash) {
+			onHash(input, metadata, hash);
+		}
 
 		try {
 			return fs.readFileSync(cachedPath, encoding);

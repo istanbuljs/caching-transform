@@ -30,20 +30,16 @@
   "dependencies": {
     "md5-hex": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "package-hash": "^1.2.0",
     "write-file-atomic": "^1.1.4"
   },
   "devDependencies": {
-    "ava": "^0.8.0",
+    "ava": "^0.14.0",
     "coveralls": "^2.11.6",
     "mock-fs": "^3.5.0",
-    "nyc": "5.0.1",
+    "nyc": "^6.4.0",
     "proxyquire": "^1.7.3",
     "sinon": "^1.17.2",
-    "xo": "^0.12.1"
-  },
-  "xo": {
-    "ignores": [
-      "test.js"
-    ]
+    "xo": "^0.15.0"
   }
 }
