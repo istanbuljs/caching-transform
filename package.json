@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "Wraps a transform and provides caching",
   "license": "MIT",
-  "repository": "jamestalmage/caching-transform",
+  "repository": "avajs/caching-transform",
   "author": {
     "name": "James Talmage",
     "email": "james@talmage.io",

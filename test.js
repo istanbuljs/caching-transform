@@ -35,10 +35,12 @@ function wrap(opts, fsConfig) {
 			cacheDir: '/cacheDir'
 		};
 	}
+
 	var cachingTransform = withMockedFs(fsConfig);
 	var wrapped = cachingTransform(opts);
 	wrapped.fs = cachingTransform.fs;
 	wrapped.mkdirp = cachingTransform.mkdirp;
+
 	return wrapped;
 }
 
@@ -209,6 +211,7 @@ test('checks for sensible options', t => {
 	const transform = append('bar');
 	const factory = () => transform;
 	const cacheDir = '/someDir';
+
 	t.throws(() => wrap({factory, transform, cacheDir}));
 	t.throws(() => wrap({cacheDir}));
 	t.throws(() => wrap({factory}));
@@ -224,6 +227,7 @@ test('cacheDir is only required if caching is enabled', t => {
 	t.notThrows(() => {
 		wrap({transform: append('bar'), disableCache: true});
 	});
+
 	t.throws(() => {
 		wrap({transform: append('bar')});
 	});

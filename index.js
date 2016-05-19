@@ -1,5 +1,4 @@
 'use strict';
-
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
@@ -15,8 +14,9 @@ function getOwnHash() {
 
 function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
-		throw new Error('specify factory or transform but not both');
+		throw new Error('Specify factory or transform but not both');
 	}
+
 	if (typeof opts.cacheDir !== 'string' && !opts.disableCache) {
 		throw new Error('cacheDir must be a string');
 	}
@@ -39,11 +39,14 @@ function wrap(opts) {
 			if (!cacheDirCreated && !disableCache) {
 				mkdirp.sync(cacheDir);
 			}
+
 			if (!transformFn) {
 				transformFn = factory(cacheDir);
 			}
+
 			created = true;
 		}
+
 		return transformFn(input, metadata, hash);
 	}
 
@@ -51,14 +54,17 @@ function wrap(opts) {
 		if (shouldTransform && !shouldTransform(input, metadata)) {
 			return input;
 		}
+
 		if (disableCache) {
 			return transform(input, metadata);
 		}
 
 		var data = [ownHash || getOwnHash(), input];
+
 		if (salt) {
 			data.push(salt);
 		}
+
 		if (hashData) {
 			data = data.concat(hashData(input, metadata));
 		}

@@ -1,4 +1,4 @@
-# caching-transform [![Build Status](https://travis-ci.org/jamestalmage/caching-transform.svg?branch=master)](https://travis-ci.org/jamestalmage/caching-transform) [![Coverage Status](https://coveralls.io/repos/jamestalmage/caching-transform/badge.svg?branch=master&service=github)](https://coveralls.io/github/jamestalmage/caching-transform?branch=master)
+# caching-transform [![Build Status](https://travis-ci.org/avajs/caching-transform.svg?branch=master)](https://travis-ci.org/avajs/caching-transform) [![Coverage Status](https://coveralls.io/repos/github/avajs/caching-transform/badge.svg?branch=master)](https://coveralls.io/github/avajs/caching-transform?branch=master)
 
 > Wraps a transform and provides caching.
 
@@ -18,12 +18,12 @@ $ npm install --save caching-transform
 const cachingTransform = require('caching-transform');
 
 const transform = cachingTransform({
-  cacheDir: '/path/to/cache/directory',
-  salt: 'hash-salt',
-  transform: (input, metadata, hash) => {
-    // ... expensive operations ...
-    return transformedResult;
-  }
+	cacheDir: '/path/to/cache/directory',
+	salt: 'hash-salt',
+	transform: (input, metadata, hash) => {
+		// ... expensive operations ...
+		return transformedResult;
+	}
 });
 
 transform('some input for transpilation')
@@ -39,7 +39,7 @@ transform('some input for transpilation')
 Returns a transform callback that takes two arguments:
 
  - `input` a string to be transformed
- - `metadata` an arbitrary data object.
+ - `metadata` an arbitrary data object
 
 Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `md5` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
 
@@ -47,21 +47,21 @@ Both arguments are passed to the wrapped transform. Results are cached in the ca
 
 ##### salt
 
-Type: `string`, or `buffer`
-Default: `empty string`
+Type: `string` `Buffer`<br>
+Default: `''`
 
 A value that uniquely identifies your transform:
 
 ```js
-  const pkg = require('my-transform/package.json');
-  const salt = pkg.name + ':' + pkg.version;
+const pkg = require('my-transform/package.json');
+const salt = pkg.name + ':' + pkg.version;
 ```
 
 Including the version in the salt ensures existing cache entries will be automatically invalidated when you bump the version of your transform. If your transform relies on additional dependencies, and the transform output might change as those dependencies update, then your salt should incorporate the versions of those dependencies as well.
 
 ##### transform
 
-Type: `Function(input: string|buffer, metadata: *, hash: string): string|buffer`  
+Type: `Function(input: string|Buffer, metadata: *, hash: string): string|Buffer`
 
  - `input`: The value to be transformed. It is passed through from the wrapper.
  - `metadata`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
@@ -79,46 +79,46 @@ A typical usage would be to prevent eagerly `require`ing expensive dependencies 
 
 ```js
 function factory() {
-  // Using the factory function, you can avoid loading Babel until you are sure it is needed.
-  var babel = require('babel-core');
+	// Using the factory function, you can avoid loading Babel until you are sure it is needed.
+	const babel = require('babel-core');
 
-  return function (code, metadata) {
-    return babel.transform(code, {filename: metadata.filename, plugins: [/* ... */]});
-  };
+	return (code, metadata) => {
+		return babel.transform(code, {filename: metadata.filename, plugins: [/* ... */]});
+	};
 }
 ```
 
 ##### cacheDir
 
-Type: `string`  
-*Required unless caching is disabled*
+*Required unless caching is disabled*<br>
+Type: `string`
 
 The directory where cached transform results will be stored. The directory is automatically created with [`mkdirp`](https://www.npmjs.com/package/mkdirp). You can set `options.createCacheDir = false` if you are certain the directory already exists.
 
 ##### ext
 
-Type: `string`
-Default: `empty string`
+Type: `string`<br>
+Default: `''`
 
 An extension that will be appended to the salted hash to create the filename inside your cache directory. It is not required, but recommended if you know the file type. Appending the extension allows you to easily inspect the contents of the cache directory with your file browser.
 
 ##### shouldTransform
 
-Type: `Function(input: string|buffer, additionalData: *)`
-Default: `always transform`
+Type: `Function(input: string|Buffer, additionalData: *)`<br>
+Default: Always transform
 
 A function that examines `input` and `metadata` to determine whether the transform should be applied. Returning `false` means the transform will not be applied and `input` will be returned unmodified.
 
 ##### disableCache
 
-Type: `boolean`
+Type: `boolean`<br>
 Default: `false`
 
 If `true`, the cache is ignored and the transform is used every time regardless of cache contents.
 
 ##### hashData
 
-Type: `Function(input: string|buffer, metadata: *): string|buffer|array[string|buffer]`
+Type: `Function(input: string|Buffer, metadata: *): string|Buffer|Array[string|Buffer]`
 
 Provide additional data that should be included in the hash.
 
@@ -126,7 +126,7 @@ One potential use is including the `metadata` in the hash by coercing it to a ha
 
 ```js
 function hashData(input, metadata) {
-  return JSON.stringify(metadata);
+	return JSON.stringify(metadata);
 }
 ```
 
@@ -134,17 +134,18 @@ function hashData(input, metadata) {
 
 ##### onHash
 
-Type: `Function(input: string|buffer, metadata: *, hash: string)`
+Type: `Function(input: string|Buffer, metadata: *, hash: string)`
 
 A function that is called after input is hashed.
 
 ##### encoding
 
-Type: `string`
-Default: `utf8`
+Type: `string`<br>
+Default: `'utf8'`
 
 The encoding to use when writing to / reading from the filesystem. If set to `"buffer"`, then buffers will be returned from the cache instead of strings.
 
+
 ## License
 
-MIT © [James Talmage](http://github.com/jamestalmage)
+MIT © [James Talmage](https://github.com/jamestalmage)
