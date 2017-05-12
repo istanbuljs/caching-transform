@@ -1,14 +1,14 @@
 'use strict';
-var fs = require('fs');
-var path = require('path');
-var mkdirp = require('mkdirp');
-var md5Hex = require('md5-hex');
-var writeFileAtomic = require('write-file-atomic');
-var packageHash = require('package-hash');
+const fs = require('fs');
+const path = require('path');
+const mkdirp = require('mkdirp');
+const md5Hex = require('md5-hex');
+const writeFileAtomic = require('write-file-atomic');
+const packageHash = require('package-hash');
 
-var ownHash = '';
+let ownHash = '';
 function getOwnHash() {
-	ownHash = packageHash.sync(__dirname);
+	ownHash = packageHash.sync(path.join(__dirname, 'package.json'));
 	return ownHash;
 }
 
@@ -21,18 +21,18 @@ function wrap(opts) {
 		throw new Error('cacheDir must be a string');
 	}
 
-	var transformFn = opts.transform;
-	var factory = opts.factory;
-	var cacheDir = opts.cacheDir;
-	var cacheDirCreated = opts.createCacheDir === false;
-	var created = transformFn && cacheDirCreated;
-	var ext = opts.ext || '';
-	var salt = opts.salt || '';
-	var shouldTransform = opts.shouldTransform;
-	var disableCache = opts.disableCache;
-	var hashData = opts.hashData;
-	var onHash = opts.onHash;
-	var encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
+	let transformFn = opts.transform;
+	const factory = opts.factory;
+	const cacheDir = opts.cacheDir;
+	const cacheDirCreated = opts.createCacheDir === false;
+	let created = transformFn && cacheDirCreated;
+	const ext = opts.ext || '';
+	const salt = opts.salt || '';
+	const shouldTransform = opts.shouldTransform;
+	const disableCache = opts.disableCache;
+	const hashData = opts.hashData;
+	const onHash = opts.onHash;
+	const encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
 		if (!created) {
@@ -59,7 +59,7 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		var data = [ownHash || getOwnHash(), input];
+		let data = [ownHash || getOwnHash(), input];
 
 		if (salt) {
 			data.push(salt);
@@ -69,8 +69,8 @@ function wrap(opts) {
 			data = data.concat(hashData(input, metadata));
 		}
 
-		var hash = md5Hex(data);
-		var cachedPath = path.join(cacheDir, hash + ext);
+		const hash = md5Hex(data);
+		const cachedPath = path.join(cacheDir, hash + ext);
 
 		if (onHash) {
 			onHash(input, metadata, hash);
@@ -78,8 +78,8 @@ function wrap(opts) {
 
 		try {
 			return fs.readFileSync(cachedPath, encoding);
-		} catch (e) {
-			var result = transform(input, metadata, hash);
+		} catch (err) {
+			const result = transform(input, metadata, hash);
 			writeFileAtomic.sync(cachedPath, result, encoding);
 			return result;
 		}

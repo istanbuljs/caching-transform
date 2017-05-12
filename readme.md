@@ -21,7 +21,7 @@ const transform = cachingTransform({
 	cacheDir: '/path/to/cache/directory',
 	salt: 'hash-salt',
 	transform: (input, metadata, hash) => {
-		// ... expensive operations ...
+		// ... Expensive operations ...
 		return transformedResult;
 	}
 });
@@ -136,14 +136,14 @@ function hashData(input, metadata) {
 
 Type: `Function(input: string|Buffer, metadata: *, hash: string)`
 
-A function that is called after input is hashed.
+Function that is called after input is hashed.
 
 ##### encoding
 
 Type: `string`<br>
 Default: `'utf8'`
 
-The encoding to use when writing to / reading from the filesystem. If set to `"buffer"`, then buffers will be returned from the cache instead of strings.
+The encoding to use when writing to / reading from the filesystem. If set it to `buffer`, then buffers will be returned from the cache instead of strings.
 
 
 ## License

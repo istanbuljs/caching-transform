@@ -7,21 +7,29 @@ import sinon from 'sinon';
 
 // Istanbul (used by nyc to instrument the code) won't load when mock-fs is
 // installed. Require the index.js here so it can be instrumented.
-import './';
+import '.'; // eslint-disable-line import/no-unassigned-import
 
 const PKG_HASH = '101044df7719e0cfa10cbf1ad7b1c63e';
 
 function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
 	fs['@global'] = true;
+
 	const mkdirp = proxyquire('mkdirp', {fs});
 	mkdirp.sync = sinon.spy(mkdirp.sync);
+
 	const packageHash = {
 		sync() {
 			return PKG_HASH;
 		}
 	};
-	var cachingTransform = proxyquire('./', {fs, mkdirp, 'package-hash': packageHash});
+
+	const cachingTransform = proxyquire('.', {
+		fs,
+		mkdirp,
+		'package-hash': packageHash
+	});
+
 	cachingTransform.fs = fs;
 	cachingTransform.mkdirp = mkdirp;
 
@@ -36,8 +44,8 @@ function wrap(opts, fsConfig) {
 		};
 	}
 
-	var cachingTransform = withMockedFs(fsConfig);
-	var wrapped = cachingTransform(opts);
+	const cachingTransform = withMockedFs(fsConfig);
+	const wrapped = cachingTransform(opts);
 	wrapped.fs = cachingTransform.fs;
 	wrapped.mkdirp = cachingTransform.mkdirp;
 
@@ -45,7 +53,7 @@ function wrap(opts, fsConfig) {
 }
 
 function append(val) {
-	return input => input + ' ' + val;
+	return input => `${input} ${val}`;
 }
 
 test('saves transform result to cache directory', t => {
@@ -362,17 +370,17 @@ test('custom encoding changes value loaded from disk', t => {
 		['/cacheDir/' + md5Hex([PKG_HASH, 'foo'])]: 'foo bar'
 	});
 
-	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
+	t.is(transform('foo'), Buffer.from('foo bar').toString('hex'));
 });
 
 test.failing('custom encoding changes the value stored to disk', t => {
 	const transform = wrap({
-		transform: code => new Buffer(code + ' bar').toString('hex'),
+		transform: code => Buffer.from(code + ' bar').toString('hex'),
 		encoding: 'hex',
 		cacheDir: '/cacheDir'
 	});
 
-	t.is(transform('foo'), new Buffer('foo bar').toString('hex'));
+	t.is(transform('foo'), Buffer.from('foo bar').toString('hex'));
 	t.is(transform.fs.readFileSync('/cacheDir/' + md5Hex([PKG_HASH, 'foo']), 'utf8'), 'foo bar');
 });
 
@@ -385,7 +393,7 @@ test('buffer encoding returns a buffer', t => {
 		['/cacheDir/' + md5Hex([PKG_HASH, 'foo'])]: 'foo bar'
 	});
 
-	var result = transform('foo');
+	const result = transform('foo');
 	t.true(Buffer.isBuffer(result));
 	t.is(result.toString(), 'foo bar');
 });
@@ -393,10 +401,10 @@ test('buffer encoding returns a buffer', t => {
 test('salt can be a buffer', t => {
 	const transform = wrap({
 		transform: () => t.fail(),
-		salt: new Buffer('some-salt'),
+		salt: Buffer.from('some-salt'),
 		cacheDir: '/cacheDir'
 	}, {
-		['/cacheDir/' + md5Hex([PKG_HASH, 'foo', new Buffer('some-salt', 'utf8')])]: 'foo bar'
+		['/cacheDir/' + md5Hex([PKG_HASH, 'foo', Buffer.from('some-salt', 'utf8')])]: 'foo bar'
 	});
 
 	t.is(transform('foo'), 'foo bar');
