@@ -15,8 +15,8 @@ function withMockedFs(fsConfig) {
 	const fs = mockfs.fs(fsConfig || {});
 	fs['@global'] = true;
 
-	const mkdirp = proxyquire('mkdirp', {fs});
-	mkdirp.sync = sinon.spy(mkdirp.sync);
+	const makeDir = proxyquire('make-dir', {fs});
+	makeDir.sync = sinon.spy(makeDir.sync);
 
 	const packageHash = {
 		sync() {
@@ -26,12 +26,12 @@ function withMockedFs(fsConfig) {
 
 	const cachingTransform = proxyquire('.', {
 		fs,
-		mkdirp,
+		'make-dir': makeDir,
 		'package-hash': packageHash
 	});
 
 	cachingTransform.fs = fs;
-	cachingTransform.mkdirp = mkdirp;
+	cachingTransform.makeDir = makeDir;
 
 	return cachingTransform;
 }
@@ -47,7 +47,7 @@ function wrap(opts, fsConfig) {
 	const cachingTransform = withMockedFs(fsConfig);
 	const wrapped = cachingTransform(opts);
 	wrapped.fs = cachingTransform.fs;
-	wrapped.mkdirp = cachingTransform.mkdirp;
+	wrapped.makeDir = cachingTransform.makeDir;
 
 	return wrapped;
 }
@@ -107,7 +107,7 @@ test('able to specify alternate extension', t => {
 	t.is(transform.fs.readFileSync(filename, 'utf8'), 'foo bar');
 });
 
-test('mkdirp is only called once', t => {
+test('makeDir is only called once', t => {
 	const transform = wrap(
 		{
 			transform: append('bar'),
@@ -115,14 +115,14 @@ test('mkdirp is only called once', t => {
 		}
 	);
 
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 	t.is(transform('foo'), 'foo bar');
-	t.is(transform.mkdirp.sync.callCount, 1);
+	t.is(transform.makeDir.sync.callCount, 1);
 	t.is(transform('bar'), 'bar bar');
-	t.is(transform.mkdirp.sync.callCount, 1);
+	t.is(transform.makeDir.sync.callCount, 1);
 });
 
-test('mkdirp is only called once, with factory', t => {
+test('makeDir is only called once, with factory', t => {
 	const transform = wrap(
 		{
 			factory: () => append('bar'),
@@ -130,14 +130,14 @@ test('mkdirp is only called once, with factory', t => {
 		}
 	);
 
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 	t.is(transform('foo'), 'foo bar');
-	t.is(transform.mkdirp.sync.callCount, 1);
+	t.is(transform.makeDir.sync.callCount, 1);
 	t.is(transform('bar'), 'bar bar');
-	t.is(transform.mkdirp.sync.callCount, 1);
+	t.is(transform.makeDir.sync.callCount, 1);
 });
 
-test('mkdirp is never called if `createCacheDir === false`', t => {
+test('makeDir is never called if `createCacheDir === false`', t => {
 	const transform = wrap(
 		{
 			transform: append('bar'),
@@ -149,12 +149,12 @@ test('mkdirp is never called if `createCacheDir === false`', t => {
 		}
 	);
 
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 	t.is(transform('foo'), 'foo bar');
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 });
 
-test('mkdirp is never called if `createCacheDir === false`, with factory', t => {
+test('makeDir is never called if `createCacheDir === false`, with factory', t => {
 	const transform = wrap(
 		{
 			factory: () => append('bar'),
@@ -166,9 +166,9 @@ test('mkdirp is never called if `createCacheDir === false`, with factory', t => 
 		}
 	);
 
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 	t.is(transform('foo'), 'foo bar');
-	t.is(transform.mkdirp.sync.callCount, 0);
+	t.is(transform.makeDir.sync.callCount, 0);
 });
 
 test('additional opts are passed to transform', t => {

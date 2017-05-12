@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
+const makeDir = require('make-dir');
 const md5Hex = require('md5-hex');
 const writeFileAtomic = require('write-file-atomic');
 const packageHash = require('package-hash');
@@ -37,7 +37,7 @@ function wrap(opts) {
 	function transform(input, metadata, hash) {
 		if (!created) {
 			if (!cacheDirCreated && !disableCache) {
-				mkdirp.sync(cacheDir);
+				makeDir.sync(cacheDir);
 			}
 
 			if (!transformFn) {
