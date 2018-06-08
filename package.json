@@ -36,9 +36,9 @@
   "devDependencies": {
     "ava": "^0.19.1",
     "coveralls": "^2.11.6",
-    "mock-fs": "^3.5.0",
     "nyc": "^10.3.2",
     "proxyquire": "^1.7.3",
+    "rimraf": "^2.6.2",
     "sinon": "^2.2.0",
     "xo": "^0.18.2"
   },
