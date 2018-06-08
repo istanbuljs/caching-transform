@@ -75,7 +75,7 @@ function wrap(opts) {
 			return fs.readFileSync(cachedPath, encoding);
 		} catch (err) {
 			const result = transform(input, metadata, hash);
-			writeFileAtomic.sync(cachedPath, result, encoding);
+			writeFileAtomic.sync(cachedPath, result, {encoding});
 			return result;
 		}
 	};
