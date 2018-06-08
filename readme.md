@@ -8,7 +8,7 @@ Caching transform results can greatly improve performance. `nyc` saw [dramatic p
 ## Install
 
 ```
-$ npm install --save caching-transform
+$ npm install caching-transform
 ```
 
 
