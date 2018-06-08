@@ -22,16 +22,11 @@ function wrap(opts) {
 	}
 
 	let transformFn = opts.transform;
-	const factory = opts.factory;
-	const cacheDir = opts.cacheDir;
+	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash} = opts;
 	const cacheDirCreated = opts.createCacheDir === false;
 	let created = transformFn && cacheDirCreated;
 	const ext = opts.ext || '';
 	const salt = opts.salt || '';
-	const shouldTransform = opts.shouldTransform;
-	const disableCache = opts.disableCache;
-	const hashData = opts.hashData;
-	const onHash = opts.onHash;
 	const encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
