@@ -1,4 +1,4 @@
-# caching-transform [![Build Status](https://travis-ci.org/avajs/caching-transform.svg?branch=master)](https://travis-ci.org/avajs/caching-transform) [![Coverage Status](https://coveralls.io/repos/github/avajs/caching-transform/badge.svg?branch=master)](https://coveralls.io/github/avajs/caching-transform?branch=master)
+# caching-transform [![Build Status](https://travis-ci.org/istanbuljs/caching-transform.svg?branch=master)](https://travis-ci.org/istanbuljs/caching-transform) [![Coverage Status](https://coveralls.io/repos/github/istanbuljs/caching-transform/badge.svg?branch=master)](https://coveralls.io/github/istanbuljs/caching-transform?branch=master)
 
 > Wraps a transform and provides caching.
 
