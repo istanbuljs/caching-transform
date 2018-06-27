@@ -1,8 +1,8 @@
 'use strict';
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const makeDir = require('make-dir');
-const md5Hex = require('md5-hex');
 const writeFileAtomic = require('write-file-atomic');
 const packageHash = require('package-hash');
 
@@ -64,7 +64,12 @@ function wrap(opts) {
 			data = data.concat(hashData(input, metadata));
 		}
 
-		const hash = md5Hex(data);
+		const cryptoHash = crypto.createHash('sha256');
+		data.forEach(item => {
+			cryptoHash.update(item);
+		});
+
+		const hash = cryptoHash.digest('hex');
 		const cachedPath = path.join(cacheDir, hash + ext);
 
 		if (onHash) {
