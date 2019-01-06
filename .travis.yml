@@ -1,9 +1,9 @@
-sudo: false
 language: node_js
 node_js:
+  - 'stable'
+  - 'lts/*'
   - '10'
   - '8'
-  - '6'
 before_install:
   - 'npm i -g npm@latest'
 after_script:
