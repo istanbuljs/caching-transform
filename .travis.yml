@@ -1,9 +1,13 @@
 language: node_js
+os:
+  - windows
+  - linux
+  - osx
 node_js:
-  - 'stable'
-  - 'lts/*'
-  - '10'
-  - '8'
+  - "node"
+  - 10
+  - 8
+  - 6
 before_install:
   - 'npm i -g npm@latest'
 after_script:
