@@ -1,7 +1,7 @@
 'use strict';
-const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const hasha = require('hasha');
 const makeDir = require('make-dir');
 const writeFileAtomic = require('write-file-atomic');
 const packageHash = require('package-hash');
@@ -64,12 +64,7 @@ function wrap(opts) {
 			data = data.concat(hashData(input, metadata));
 		}
 
-		const cryptoHash = crypto.createHash('sha256');
-		data.forEach(item => {
-			cryptoHash.update(item);
-		});
-
-		const hash = cryptoHash.digest('hex');
+		const hash = hasha(data, {algorithm: 'sha256'});
 		const cachedPath = path.join(cacheDir, hash + ext);
 
 		if (onHash) {
