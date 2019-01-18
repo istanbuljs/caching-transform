@@ -41,7 +41,7 @@ Returns a transform callback that takes two arguments:
  - `input` a string to be transformed
  - `metadata` an arbitrary data object
 
-Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `md5` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
+Both arguments are passed to the wrapped transform. Results are cached in the cache directory using an `sha256` hash of `input` and an optional `salt` value. If a cache entry already exist for `input`, the wrapped transform function will never be called.
 
 #### options
 
@@ -65,7 +65,7 @@ Type: `Function(input: string|Buffer, metadata: *, hash: string): string|Buffer`
 
  - `input`: The value to be transformed. It is passed through from the wrapper.
  - `metadata`: An arbitrary data object passed through from the wrapper. A typical value might be a string filename.
- - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, the default can be computed via [`md5Hex([input, salt])`](https://www.npmjs.com/package/md5-hex).
+ - `hash`: The salted hash of `input`. Useful if you intend to create additional cache entries beyond the transform result (i.e. `nyc` also creates cache entries for source-map data). This value is not available if the cache is disabled, if you still need it, the default can be computed via [`hasha([input, salt])`](https://www.npmjs.com/package/hasha).
 
 The transform function will return a `string` (or Buffer if `encoding === 'buffer'`) containing the result of transforming `input`.
 
