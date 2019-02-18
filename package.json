@@ -1,6 +1,6 @@
 {
 	"name": "caching-transform",
-	"version": "3.0.1",
+	"version": "3.0.2",
 	"description": "Wraps a transform and provides caching",
 	"license": "MIT",
 	"repository": "istanbuljs/caching-transform",
