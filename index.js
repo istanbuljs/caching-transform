@@ -21,12 +21,17 @@ function wrap(opts) {
 		throw new Error('cacheDir must be a string');
 	}
 
+	opts = {
+		ext: '',
+		salt: '',
+		hashData: () => [],
+		...opts
+	};
+
 	let transformFn = opts.transform;
-	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash} = opts;
+	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash, ext, salt} = opts;
 	const cacheDirCreated = opts.createCacheDir === false;
 	let created = transformFn && cacheDirCreated;
-	const ext = opts.ext || '';
-	const salt = opts.salt || '';
 	const encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
@@ -54,16 +59,12 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		let data = [ownHash || getOwnHash(), input];
-
-		if (salt) {
-			data.push(salt);
-		}
-
-		if (hashData) {
-			data = data.concat(hashData(input, metadata));
-		}
-
+		const data = [
+			ownHash || getOwnHash(),
+			input,
+			salt,
+			...[].concat(hashData(input, metadata))
+		];
 		const hash = hasha(data, {algorithm: 'sha256'});
 		const cachedPath = path.join(cacheDir, hash + ext);
 
