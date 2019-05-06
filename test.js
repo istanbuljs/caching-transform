@@ -405,3 +405,16 @@ test('salt can be a buffer', t => {
 
 	t.is(transform('foo'), 'foo bar');
 });
+
+test('filenamePrefix uses metadata to prefix filename', t => {
+	const transform = wrap({
+		transform: () => t.fail(),
+		filenamePrefix: metadata => path.parse(metadata.filename || '').name + '-'
+	});
+
+	makeDir.sync(transform.cacheDir);
+	const filename = path.join(transform.cacheDir, 'source-' + hasha([PKG_HASH, 'foo'], {algorithm: 'sha256'}));
+	fs.writeFileSync(filename, 'foo bar');
+
+	t.is(transform('foo', {filename: path.join(__dirname, 'source.js')}), 'foo bar');
+});

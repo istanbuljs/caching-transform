@@ -25,11 +25,13 @@ function wrap(opts) {
 		ext: '',
 		salt: '',
 		hashData: () => [],
+		filenamePrefix: () => '',
+		onHash: () => {},
 		...opts
 	};
 
 	let transformFn = opts.transform;
-	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash, ext, salt} = opts;
+	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash, filenamePrefix, ext, salt} = opts;
 	const cacheDirCreated = opts.createCacheDir === false;
 	let created = transformFn && cacheDirCreated;
 	const encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
@@ -66,11 +68,9 @@ function wrap(opts) {
 			...[].concat(hashData(input, metadata))
 		];
 		const hash = hasha(data, {algorithm: 'sha256'});
-		const cachedPath = path.join(cacheDir, hash + ext);
+		const cachedPath = path.join(cacheDir, filenamePrefix(metadata) + hash + ext);
 
-		if (onHash) {
-			onHash(input, metadata, hash);
-		}
+		onHash(input, metadata, hash);
 
 		try {
 			return fs.readFileSync(cachedPath, encoding);
