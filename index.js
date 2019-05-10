@@ -72,12 +72,29 @@ function wrap(opts) {
 
 		onHash(input, metadata, hash);
 
-		try {
-			return fs.readFileSync(cachedPath, encoding);
-		} catch (error) {
-			const result = transform(input, metadata, hash);
-			writeFileAtomic.sync(cachedPath, result, {encoding});
-			return result;
+		let result;
+		let retry = 0;
+		/* eslint-disable-next-line no-constant-condition */
+		while (true) {
+			try {
+				return fs.readFileSync(cachedPath, encoding);
+			} catch (error) {
+				if (!result) {
+					result = transform(input, metadata, hash);
+				}
+
+				try {
+					writeFileAtomic.sync(cachedPath, result, {encoding});
+					return result;
+				} catch (error) {
+					/* Likely https://github.com/npm/write-file-atomic/issues/28
+					 * Make up to 3 attempts to read or write the cache. */
+					retry++;
+					if (retry > 3) {
+						throw error;
+					}
+				}
+			}
 		}
 	};
 }
