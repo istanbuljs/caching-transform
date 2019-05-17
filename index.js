@@ -78,7 +78,7 @@ function wrap(opts) {
 		while (true) {
 			try {
 				return fs.readFileSync(cachedPath, encoding);
-			} catch (error) {
+			} catch (readError) {
 				if (!result) {
 					result = transform(input, metadata, hash);
 				}
