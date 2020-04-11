@@ -1,4 +1,4 @@
-# caching-transform [![Build Status](https://travis-ci.org/istanbuljs/caching-transform.svg?branch=master)](https://travis-ci.org/istanbuljs/caching-transform) [![Coverage Status](https://coveralls.io/repos/github/istanbuljs/caching-transform/badge.svg?branch=master)](https://coveralls.io/github/istanbuljs/caching-transform?branch=master)
+# caching-transform ![Tests](https://github.com/istanbuljs/caching-transform/workflows/Tests/badge.svg)
 
 > Wraps a transform and provides caching.
 
