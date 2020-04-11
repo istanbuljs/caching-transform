@@ -1,4 +1,4 @@
-# caching-transform ![Tests][https://github.com/istanbuljs/caching-transform/workflows/Tests/badge.svg]
+# caching-transform ![Tests](https://github.com/istanbuljs/caching-transform/workflows/Tests/badge.svg)
 
 > Wraps a transform and provides caching.
 
