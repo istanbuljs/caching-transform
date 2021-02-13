@@ -2,7 +2,6 @@
 const fs = require('fs');
 const path = require('path');
 const hasha = require('hasha');
-const makeDir = require('make-dir');
 const writeFileAtomic = require('write-file-atomic');
 const packageHash = require('package-hash');
 
@@ -12,34 +11,34 @@ function getOwnHash() {
 	return ownHash;
 }
 
-function wrap(opts) {
-	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
+function wrap(options) {
+	if (!(options.factory || options.transform) || (options.factory && options.transform)) {
 		throw new Error('Specify factory or transform but not both');
 	}
 
-	if (typeof opts.cacheDir !== 'string' && !opts.disableCache) {
+	if (typeof options.cacheDir !== 'string' && !options.disableCache) {
 		throw new Error('cacheDir must be a string');
 	}
 
-	opts = {
+	options = {
 		ext: '',
 		salt: '',
 		hashData: () => [],
 		filenamePrefix: () => '',
 		onHash: () => {},
-		...opts
+		...options
 	};
 
-	let transformFn = opts.transform;
-	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash, filenamePrefix, ext, salt} = opts;
-	const cacheDirCreated = opts.createCacheDir === false;
+	let transformFn = options.transform;
+	const {factory, cacheDir, shouldTransform, disableCache, hashData, onHash, filenamePrefix, ext, salt} = options;
+	const cacheDirCreated = options.createCacheDir === false;
 	let created = transformFn && cacheDirCreated;
-	const encoding = opts.encoding === 'buffer' ? undefined : opts.encoding || 'utf8';
+	const encoding = options.encoding === 'buffer' ? undefined : options.encoding || 'utf8';
 
 	function transform(input, metadata, hash) {
 		if (!created) {
 			if (!cacheDirCreated && !disableCache) {
-				makeDir.sync(cacheDir);
+				fs.mkdirSync(cacheDir, {recursive: true});
 			}
 
 			if (!transformFn) {
@@ -78,7 +77,7 @@ function wrap(opts) {
 		while (true) {
 			try {
 				return fs.readFileSync(cachedPath, encoding);
-			} catch (_) {
+			} catch {
 				if (!result) {
 					result = transform(input, metadata, hash);
 				}
