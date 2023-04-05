@@ -48,6 +48,9 @@ function wrap(opts) {
 
 			created = true;
 		}
+		if (input.toString) {
+			input = input.toString()
+		}
 
 		return transformFn(input, metadata, hash);
 	}
