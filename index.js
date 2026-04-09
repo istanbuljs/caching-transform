@@ -1,18 +1,10 @@
-'use strict';
-const fs = require('fs');
-const path = require('path');
-const hasha = require('hasha');
-const makeDir = require('make-dir');
-const writeFileAtomic = require('write-file-atomic');
-const packageHash = require('package-hash');
+import fs from 'fs';
+import path from 'path';
+import {createHash} from 'crypto';
+import writeFileAtomic from 'write-file-atomic';
+import ownHash from './package-hash.js';
 
-let ownHash = '';
-function getOwnHash() {
-	ownHash = packageHash.sync(path.join(__dirname, 'package.json'));
-	return ownHash;
-}
-
-function wrap(opts) {
+export default function wrap(opts) {
 	if (!(opts.factory || opts.transform) || (opts.factory && opts.transform)) {
 		throw new Error('Specify factory or transform but not both');
 	}
@@ -39,7 +31,7 @@ function wrap(opts) {
 	function transform(input, metadata, hash) {
 		if (!created) {
 			if (!cacheDirCreated && !disableCache) {
-				makeDir.sync(cacheDir);
+				fs.mkdirSync(cacheDir, {recursive: true});
 			}
 
 			if (!transformFn) {
@@ -61,20 +53,20 @@ function wrap(opts) {
 			return transform(input, metadata);
 		}
 
-		const data = [
-			ownHash || getOwnHash(),
-			input,
-			salt,
-			...[].concat(hashData(input, metadata))
-		];
-		const hash = hasha(data, {algorithm: 'sha256'});
+		const data = createHash('sha256');
+		data.update(ownHash);
+		data.update(input);
+		data.update(salt);
+		for (const item of [].concat(hashData(input, metadata))) {
+			data.update(item);
+		}
+		const hash = data.digest('hex');
 		const cachedPath = path.join(cacheDir, filenamePrefix(metadata) + hash + ext);
 
 		onHash(input, metadata, hash);
 
 		let result;
 		let retry = 0;
-		/* eslint-disable-next-line no-constant-condition */
 		while (true) {
 			try {
 				return fs.readFileSync(cachedPath, encoding);
@@ -98,5 +90,3 @@ function wrap(opts) {
 		}
 	};
 }
-
-module.exports = wrap;
